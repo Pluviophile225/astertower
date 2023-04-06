@@ -169,6 +169,7 @@ func (in *AstroStatus) DeepCopyInto(out *AstroStatus) {
 		copy(*out, *in)
 	}
 	out.AstermuleRef = in.AstermuleRef
+	out.Result = in.Result
 	return
 }
 

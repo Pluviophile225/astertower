@@ -447,7 +447,15 @@ func (c *AstroController) syncUpdate(ctx context.Context, astro *v1alpha1.Astro)
 			ip = pod.Status.PodIP
 			url = "http://" + ip + ":8080"
 		}
-		_, body, errs := c.agent.Get(url).End()
+		var body string
+		var errs []error
+		param := astro.Spec.Parameters
+		if param == "" {
+			_, body, errs = c.agent.Get(url).End()
+		} else {
+			content := "param=" + param
+			_, body, errs = c.agent.Get(url).Query(content).End()
+		}
 		if len(errs) > 0 {
 			for _, err := range errs {
 				klog.Errorln("Launch error:", err)

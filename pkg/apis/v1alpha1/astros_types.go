@@ -52,10 +52,6 @@ type AstroStar struct {
 type AstroSpec struct {
 	Stars []AstroStar `json:"stars,omitempty"`
 
-	// Type is used to define the type of Request
-	// +optional
-	Type RequestType `json:"type,omitempty"`
-
 	// Parameters are used to represent the entry parameter for entering the first microservice
 	// +optional
 	Parameters string `json:"parameters,omitempty"`
