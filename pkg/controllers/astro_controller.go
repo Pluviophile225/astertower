@@ -449,12 +449,13 @@ func (c *AstroController) syncUpdate(ctx context.Context, astro *v1alpha1.Astro)
 		}
 		var body string
 		var errs []error
-		param := astro.Spec.Parameters
+		param := astro.Spec.EntryParam
 		if param == "" {
 			_, body, errs = c.agent.Get(url).End()
 		} else {
 			content := "param=" + param
 			_, body, errs = c.agent.Get(url).Query(content).End()
+			klog.Info(param)
 		}
 		if len(errs) > 0 {
 			for _, err := range errs {
@@ -589,6 +590,7 @@ func (c *AstroController) newService(ctx context.Context, astro *v1alpha1.Astro,
 		"action":       star.Action,
 		"target":       star.Target,
 		"dependencies": deps,
+		"param":        star.Param,
 	}
 
 	service := &corev1.Service{
@@ -645,6 +647,7 @@ func (c *AstroController) newAstermule(ctx context.Context, astro *v1alpha1.Astr
 
 		node.Name = service.Annotations["name"]
 		node.Action = service.Annotations["action"]
+		node.ParamFormat = service.Annotations["param"]
 		depStr := service.Annotations["dependencies"]
 		if depStr != "" {
 			deps := strings.Split(depStr, " ")
@@ -677,7 +680,7 @@ func (c *AstroController) newAstermule(ctx context.Context, astro *v1alpha1.Astr
 				{
 					Name:  astro.Name + "-astermule",
 					Image: AstermuleImage,
-					Args:  []string{"--dag", string(data)},
+					Args:  []string{"--dag", string(data), "--param", string(astro.Spec.EntryParam)},
 				},
 			},
 		},

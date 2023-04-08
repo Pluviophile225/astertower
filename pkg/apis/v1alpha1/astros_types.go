@@ -46,6 +46,9 @@ type AstroStar struct {
 	Image string `json:"image,omitempty"`
 	// +optional
 	Port int32 `json:"port,omitempty"`
+	// Param is a list of parameters in base64 encrypted json format
+	// +optional
+	Param string `json:"param,omitempty"`
 }
 
 // AstroSpec is the spec for a Astro resource
@@ -54,22 +57,8 @@ type AstroSpec struct {
 
 	// Parameters are used to represent the entry parameter for entering the first microservice
 	// +optional
-	Parameters string `json:"parameters,omitempty"`
+	EntryParam string `json:"entryparam,omitempty"`
 }
-
-// RequestType is the type for restful request
-type RequestType string
-
-const (
-	GetRequest     RequestType = "GET"
-	PostRequest    RequestType = "POST"
-	PutRequest     RequestType = "PUT"
-	DeleteRequest  RequestType = "DELETE"
-	TraceRequest   RequestType = "TRACE"
-	HeadRequest    RequestType = "HEAD"
-	OptionsRequest RequestType = "OPTIONS"
-	ConnectRequest RequestType = "CONNECT"
-)
 
 type AstroPhase string
 
