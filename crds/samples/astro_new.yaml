@@ -11,7 +11,7 @@ spec:
     image: kasterism/test_a
     port: 8000
     target: /test
-    param: "{x:init.xx}"
+    param: "{\"id\": \"S(\"init\", \"userId\")\"}"
   - name: b
     type: docker
     action: POST
@@ -19,7 +19,7 @@ spec:
     port: 8001
     target: /test 
     dependencies: [a]
-    param: ""
+    param: "{\"id\": \"S(\"init\", \"userId\")\", \"name\": \"S(\"a\", \"userName\")\"}"
   - name: c
     type: docker
     action: POST
@@ -27,7 +27,7 @@ spec:
     port: 8002
     target: /test
     dependencies: [a]
-    param: ""
+    param: "{\"name\":\"S(\"a\", \"userAgent\")\"}"
   - name: d
     type: docker
     action: POST
@@ -35,5 +35,5 @@ spec:
     port: 8003
     target: /test 
     dependencies: [b, c]
-    param: ""
-  entryparam: JTdCJTIydGVzdCUyMiUzQSUyMmFhYSUyMiU3RA==
+    param: "{\"level\": \"S(\"b\", \"userLevel\")\", \"kind\": \"S(\"c\", \"userKind\")\"}"
+  entryparam: "{\"userId\":\"123\"}"
