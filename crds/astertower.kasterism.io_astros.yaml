@@ -50,7 +50,7 @@ spec:
           spec:
             description: AstroSpec is the spec for a Astro resource
             properties:
-              parameters:
+              entryparam:
                 description: Parameters are used to represent the entry parameter
                   for entering the first microservice
                 type: string
@@ -66,6 +66,10 @@ spec:
                     image:
                       type: string
                     name:
+                      type: string
+                    param:
+                      description: Param is a list of parameters in base64 encrypted
+                        json format
                       type: string
                     port:
                       format: int32
@@ -134,8 +138,6 @@ spec:
                 type: integer
               result:
                 properties:
-                  data:
-                    type: string
                   status:
                     description: 'TODO: Define Status'
                     properties:
@@ -145,7 +147,6 @@ spec:
                     - health
                     type: object
                 required:
-                - data
                 - status
                 type: object
               serviceRef:

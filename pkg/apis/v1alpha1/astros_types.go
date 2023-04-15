@@ -1,7 +1,7 @@
 package v1alpha1
 
 import (
-	"github.com/kasterism/astermule/pkg/parser"
+	"github.com/Pluviophile225/astermule/pkg/parser"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

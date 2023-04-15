@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kasterism/astermule/pkg/dag"
-	"github.com/kasterism/astermule/pkg/parser"
+	"github.com/Pluviophile225/astermule/pkg/dag"
+	"github.com/Pluviophile225/astermule/pkg/parser"
 	"github.com/kasterism/astertower/pkg/apis/v1alpha1"
 	astertowerclientset "github.com/kasterism/astertower/pkg/clients/clientset/astertower"
 	"github.com/kasterism/astertower/pkg/clients/clientset/astertower/scheme"
@@ -39,8 +39,8 @@ import (
 
 const (
 	// name of finalizer
-	AstroFinalizer = "astros.astertower.kasterism.io"
-	AstermuleImage = "kasterism/astermule:v0.1.0-rc"
+	AstroFinalizer = "astros.astertower.Pluviophile225.io"
+	AstermuleImage = "pluviophile225/astermule_param"
 	// maxRetries is the number of times an astro will be retried before it is dropped out of the queue.
 	// With the current rate-limiter in use (5ms*2^(maxRetries-1)) the following numbers represent the times
 	// a deployment is going to be requeued:
@@ -449,14 +449,8 @@ func (c *AstroController) syncUpdate(ctx context.Context, astro *v1alpha1.Astro)
 		}
 		var body string
 		var errs []error
-		param := astro.Spec.EntryParam
-		if param == "" {
-			_, body, errs = c.agent.Get(url).End()
-		} else {
-			content := "param=" + param
-			_, body, errs = c.agent.Get(url).Query(content).End()
-			klog.Info(param)
-		}
+		_, body, errs = c.agent.Get(url).End()
+
 		if len(errs) > 0 {
 			for _, err := range errs {
 				klog.Errorln("Launch error:", err)
@@ -685,6 +679,8 @@ func (c *AstroController) newAstermule(ctx context.Context, astro *v1alpha1.Astr
 			},
 		},
 	}
+	klog.Info(string(data))
+	klog.Info(string(astro.Spec.EntryParam))
 
 	pod, err = c.kubeClientset.
 		CoreV1().

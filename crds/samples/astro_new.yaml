@@ -8,14 +8,14 @@ spec:
   - name: a
     type: docker
     action: GET
-    image: kasterism/test_a
+    image: pluviophile225/test_a_param
     port: 8000
     target: /test
     param: "{\"id\": \"S(\"init\", \"userId\")\"}"
   - name: b
     type: docker
     action: POST
-    image: kasterism/test_b
+    image: pluviophile225/test_b_param
     port: 8001
     target: /test 
     dependencies: [a]
@@ -23,7 +23,7 @@ spec:
   - name: c
     type: docker
     action: POST
-    image: kasterism/test_c
+    image: pluviophile225/test_c_param
     port: 8002
     target: /test
     dependencies: [a]
@@ -31,7 +31,7 @@ spec:
   - name: d
     type: docker
     action: POST
-    image: kasterism/test_d
+    image: pluviophile225/test_d_param
     port: 8003
     target: /test 
     dependencies: [b, c]
