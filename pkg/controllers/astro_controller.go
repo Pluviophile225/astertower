@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/Pluviophile225/astermule/pkg/dag"
-	"github.com/Pluviophile225/astermule/pkg/parser"
+	"github.com/ghodss/yaml"
 	"github.com/kasterism/astertower/pkg/apis/v1alpha1"
 	astertowerclientset "github.com/kasterism/astertower/pkg/clients/clientset/astertower"
 	"github.com/kasterism/astertower/pkg/clients/clientset/astertower/scheme"
@@ -40,7 +40,7 @@ import (
 const (
 	// name of finalizer
 	AstroFinalizer = "astros.astertower.Pluviophile225.io"
-	AstermuleImage = "pluviophile225/astermule_param"
+	AstermuleImage = "astermule_param:v0.2.0"
 	// maxRetries is the number of times an astro will be retried before it is dropped out of the queue.
 	// With the current rate-limiter in use (5ms*2^(maxRetries-1)) the following numbers represent the times
 	// a deployment is going to be requeued:
@@ -458,17 +458,14 @@ func (c *AstroController) syncUpdate(ctx context.Context, astro *v1alpha1.Astro)
 			return errors.New("launch astermule error")
 		}
 
-		result := parser.Message{}
+		var result map[string]map[string]string
 		err := json.Unmarshal([]byte(body), &result)
 		if err != nil {
 			klog.Errorln("Parse response error:", err)
 		}
-		newStatus.Result = result
-		if result.Status.Health {
-			newStatus.Phase = v1alpha1.AstroPhaseSuccess
-		} else {
-			newStatus.Phase = v1alpha1.AstroPhaseWrong
-		}
+		klog.Info("result: ", result)
+		newStatus.Phase = v1alpha1.AstroPhaseSuccess
+
 	}
 	return c.syncStatus(ctx, astro, *newStatus)
 }
@@ -578,13 +575,13 @@ func (c *AstroController) newService(ctx context.Context, astro *v1alpha1.Astro,
 	labels := map[string]string{
 		"star": star.Name,
 	}
-
+	jsonByte, err := yaml.YAMLToJSON([]byte(star.Param))
 	annotations := map[string]string{
 		"name":         star.Name,
 		"action":       star.Action,
 		"target":       star.Target,
 		"dependencies": deps,
-		"param":        star.Param,
+		"param":        string(jsonByte),
 	}
 
 	service := &corev1.Service{
@@ -607,7 +604,7 @@ func (c *AstroController) newService(ctx context.Context, astro *v1alpha1.Astro,
 		},
 	}
 
-	service, err := c.kubeClientset.
+	service, err = c.kubeClientset.
 		CoreV1().
 		Services(astro.Namespace).
 		Create(ctx, service, metav1.CreateOptions{})
@@ -660,6 +657,8 @@ func (c *AstroController) newAstermule(ctx context.Context, astro *v1alpha1.Astr
 	labels := map[string]string{
 		"astermule": astro.Name,
 	}
+	jsonByte, err := yaml.YAMLToJSON([]byte(astro.Spec.EntryParam))
+
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: astro.Namespace,
@@ -672,15 +671,14 @@ func (c *AstroController) newAstermule(ctx context.Context, astro *v1alpha1.Astr
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
-					Name:  astro.Name + "-astermule",
-					Image: AstermuleImage,
-					Args:  []string{"--dag", string(data), "--param", string(astro.Spec.EntryParam)},
+					Name:            astro.Name + "-astermule",
+					Image:           AstermuleImage,
+					ImagePullPolicy: corev1.PullIfNotPresent,
+					Args:            []string{"--dag", string(data), "--param", string(jsonByte)},
 				},
 			},
 		},
 	}
-	klog.Info(string(data))
-	klog.Info(string(astro.Spec.EntryParam))
 
 	pod, err = c.kubeClientset.
 		CoreV1().
